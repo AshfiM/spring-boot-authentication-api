@@ -1,4 +1,4 @@
-package com.example.userauthetication;
+package com.example.userauthentication;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

@@ -1,4 +1,4 @@
-package com.example.userauthetication;
+package com.example.userauthentication;
 
 public class UserDTO {
 
