@@ -46,4 +46,10 @@ public class UserController {
 
     }
 
+    @GetMapping("/show")
+    public ResponseEntity<String> showUsers() {
+        return ResponseEntity.ok("automatically authenticated");
+    }
+
+
 }

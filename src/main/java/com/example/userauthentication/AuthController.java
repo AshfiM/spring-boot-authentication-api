@@ -1,5 +1,7 @@
 package com.example.userauthentication;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,16 +23,32 @@ public class AuthController {
         this.jwtUtility = jwtUtility;
         this.authenticationManager = authenticationManager;
     }
+//  if token in header
+//    @PostMapping(value = "/login",
+//    consumes = "application/json")
+//    public ResponseEntity<?> login(@RequestBody UserDTO user) {
+//        Authentication authentication = authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword()));
+//
+//        String token = jwtUtility.generateToken(user.getUserName());
+//        return ResponseEntity.ok(token);
+//
+//    }
 
     @PostMapping(value = "/login",
     consumes = "application/json")
-    public ResponseEntity<?> login(@RequestBody UserDTO user) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword()));
-
+   public ResponseEntity<?> login(@RequestBody UserDTO user, HttpServletResponse response) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword())
+        );
         String token = jwtUtility.generateToken(user.getUserName());
-        return ResponseEntity.ok(token);
-
+        Cookie cookie = new Cookie("JWT", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(60*60);
+        response.addCookie(cookie);
+        return ResponseEntity.ok("login successful");
     }
 
 }
