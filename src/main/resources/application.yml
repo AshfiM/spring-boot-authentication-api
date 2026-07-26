@@ -1,0 +1,21 @@
+
+spring:
+  application:
+    name: jwt-based-user-authentication-system
+  datasource:
+    username: root
+    password: Mysql#1234
+    url: jdbc:mysql://localhost:3306/mydatabase
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 5
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  config:
+    import: optional:file:.env[.properties]
+
+server:
+  address: 0.0.0.0
+  port: 8081

@@ -1,5 +1,8 @@
-package com.example.userauthentication;
+package com.example.userauthentication.service;
 
+import com.example.userauthentication.dto.UserDTO;
+import com.example.userauthentication.entity.UserEntity;
+import com.example.userauthentication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

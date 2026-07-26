@@ -1,6 +1,9 @@
-package com.example.userauthentication;
+package com.example.userauthentication.controller;
 
 
+import com.example.userauthentication.dto.UserDTO;
+import com.example.userauthentication.entity.UserEntity;
+import com.example.userauthentication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
