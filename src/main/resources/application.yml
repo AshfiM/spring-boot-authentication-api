@@ -2,6 +2,11 @@
 spring:
   application:
     name: jwt-based-user-authentication-system
+  security:
+    jwt:
+      secret-key: unN7T5xsIi19omKLLhe4ntESoLog+APlzBfW7hIVN7w=
+      expiration-ms: 3600000
+
   datasource:
     username: root
     password: Mysql#1234

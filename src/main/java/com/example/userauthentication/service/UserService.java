@@ -2,8 +2,11 @@ package com.example.userauthentication.service;
 
 import com.example.userauthentication.dto.UserDTO;
 import com.example.userauthentication.entity.UserEntity;
+import com.example.userauthentication.exception.UserAlreadyExistsException;
 import com.example.userauthentication.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,37 +24,22 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public String checkUserExist(UserDTO isUser) {
 
-        Optional<UserEntity> userEntity = userRepository.findById(isUser.getUserName());
-        if (userEntity.isPresent()) {
-            if (passwordEncoder.matches(isUser.getPassword(), userEntity.get().getPasswordHash())) {
-                return userEntity.get().getUsername();
-            }
-            else {
-                throw new RuntimeException("invalid credentials");
-            }
-        }
-        else {
-            throw new RuntimeException("invalid Credentials");
-        }
 
-    }
-
-    public UserEntity getByUserName(String userName){
-        return userRepository.findById(userName)
-                .orElseThrow(() -> new RuntimeException("user not exist"));
-    }
-
-    public UserEntity addUser(UserDTO newUser) {
-
+    @Transactional
+    public void addUser(UserDTO newUser)  {
         if (userRepository.findById(newUser.getUserName()).isPresent()) {
-            throw new RuntimeException("user already exist");
+            throw new UserAlreadyExistsException("user already exists");
+        }
+        UserEntity user = UserEntity.builder()
+                        .username(newUser.getUserName())
+                        .passwordHash(passwordEncoder.encode(newUser.getPassword()))
+                        .role("").build();
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException ex) {
+            throw new UserAlreadyExistsException(ex.getMessage());
         }
 
-        UserEntity user = new UserEntity();
-        user.setUsername(newUser.getUserName());
-        user.setPasswordHash(passwordEncoder.encode(newUser.getPassword()));
-        return userRepository.save(user);
     }
 }
