@@ -1,5 +1,7 @@
 package com.example.userauthentication.utility;
 
+import com.example.userauthentication.entity.UserEntity;
+import com.example.userauthentication.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
@@ -9,7 +11,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,19 +24,20 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtility jwtUtility;
-    private final UserDetailsService userDetailsService;
-    @Autowired
-    public JwtFilter(JwtUtility jwtUtility, UserDetailsService userDetailsService) {
+    private final UserRepository userRepository;
+
+    public JwtFilter(JwtUtility jwtUtility, UserRepository userRepository) {
         this.jwtUtility = jwtUtility;
-        this.userDetailsService = userDetailsService;
+        this.userRepository = userRepository;
     }
-   // if token stored in header
+    // if token stored in header
 //    @Override
 //    protected void doFilterInternal(HttpServletRequest request,
 //                                    HttpServletResponse response,
@@ -70,8 +76,9 @@ public class JwtFilter extends OncePerRequestFilter {
         if (token != null) {
             if(!token.equals("") && jwtUtility.validateToken(token)) {
                 String userName = jwtUtility.extractUsername(token);
-                String role = jwtUtility.extractClaim(token, claims -> claims.get("role", String.class));
-                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+role.toUpperCase());
+                Optional<UserEntity> user = userRepository.findById(userName);
+                if (user.isEmpty()) throw  new BadCredentialsException("invalid username or password");
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+user.get().getRole().toUpperCase());
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userName, null, List.of(authority)
                 );
